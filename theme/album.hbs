@@ -7,9 +7,12 @@
       <title>{{gallery.title}} - {{album.title}}</title>
       <link rel="stylesheet" href="{{relative 'public/lightgallery/css/lightgallery.css'}}" />
       <link rel="stylesheet" href="{{relative 'public/lightgallery/css/lg-exif.min.css'}}" />
+      <link rel="stylesheet" href="{{relative 'public/select2/select2.min.css'}}" />
       <link rel="stylesheet" href="{{relative 'public/videojs/video-js.min.css'}}" />
       <link rel="stylesheet" href="{{relative 'public/core.css'}}" />
       <link rel="stylesheet" href="{{relative 'public/theme.css'}}" />
+      <!-- ym -->
+      <link rel="stylesheet" href="{{relative 'public/ym.css'}}" />
   </head>
 
   <body>
@@ -28,6 +31,10 @@
     <script src="{{relative 'public/lightgallery/js/lg-thumbnail.js'}}"></script>
     <script src="{{relative 'public/lightgallery/js/lg-video.js'}}"></script>
     <script src="{{relative 'public/lightgallery/js/lg-exif.min.js'}}"></script>
+    <!-- select2 -->
+    <script src="{{relative 'public/select2/select2.min.js'}}"></script>
+    <!-- ym -->
+    <script src="{{relative 'public/ym.js'}}"></script>
 
     <script>
       $(document).ready(function() {
@@ -39,10 +46,21 @@
           counter: true,
           videojs: true
         });
+
+	$(".tagger").select2({
+		tags: true
+	});
+
+	$(".captor").on('click', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+	});
       });
     </script>
 
     {{> analytics}}
+
+<div id="blah"><p>whaaat</p></div>
 
   </body>
 

@@ -1,0 +1,91 @@
+.tagger-cont {
+	display: flex;
+	justify-content: center;
+}
+.tagger-window {
+	visibility: hidden;
+	z-index: 1000;
+	/*background-color: green;*/
+	top: 0;
+	left: 0;
+	right: 1vw;
+	bottom: 1vh;
+	border: dashed 5px black;
+	position: fixed;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.tag-editor {
+	width: 100%;
+	height: 100%;
+	max-width: 350px;
+	max-height: 500px;
+	border: dashed 5px black;
+	background-color: white;
+}
+.tag-editor ol, ul {
+    list-style: outside none none;
+}
+.tags {
+    background: none repeat scroll 0 0 #fff;
+    border: 1px solid #ccc;
+    display: table;
+    padding: 0.5em;
+    width: 100%;
+}
+.tags li.tagAdd, .tags li.addedTag {
+    float: left;
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+}
+.tags li.addedTag {
+    background: none repeat scroll 0 0 #019f86;
+    border-radius: 2px;
+    color: #fff;
+    padding: 0.25em;
+}
+.tags input, li.addedTag {
+    border: 1px solid transparent;
+    border-radius: 2px;
+    box-shadow: none;
+    display: block;
+    padding: 0.5em;
+}
+/* tag input { */
+.tag-input-wrap {
+	display: flex;
+    	border: 1px solid transparent;
+    	padding: 0.5em;
+    	border-radius: 2px;
+}
+.tag-input-text {
+	flex: 1 1 auto;
+    	border-color: #000;
+	border-width: 1;
+	border-top: 1;
+	border-bottom: 1;
+	border-left: 1;
+	border-right: 0;
+    	/* border-radius: 2px;*/
+}
+.tag-input-add {
+	background-color: #019f86;
+    	border-color: #000;
+	border-width: 1;
+	border-top: 1;
+	border-bottom: 1;
+	border-left: 0;
+	border-right: 1;
+	font-weight: bold;
+	font-size: 120%;
+}
+/* } */
+span.tagRemove {
+    cursor: pointer;
+    display: inline-block;
+    padding-left: 0.5em;
+}
+span.tagRemove:hover {
+    color: #222222;
+}  
