@@ -2,7 +2,7 @@
 	display: flex;
 	justify-content: center;
 }
-.tagger-window {
+.tagger-overlay {
 	visibility: hidden;
 	z-index: 1000;
 	/*background-color: green;*/
@@ -10,7 +10,7 @@
 	left: 0;
 	right: 1vw;
 	bottom: 1vh;
-	border: dashed 5px black;
+	border: 0;
 	position: fixed;
 	display: flex;
 	justify-content: center;
@@ -21,7 +21,8 @@
 	height: 100%;
 	max-width: 350px;
 	max-height: 500px;
-	border: dashed 5px black;
+	border: dashed 1px blue;
+	box-shadow: 4 4;
 	background-color: white;
 }
 .tag-editor ol, ul {
@@ -89,3 +90,14 @@ span.tagRemove {
 span.tagRemove:hover {
     color: #222222;
 }  
+.tagger-editor-header {
+	display: flex;
+	width: 100%;
+	justify-content: flex-end;
+}
+.tagger-editor-close {
+	border: 1px solid gray;
+	margin: 4px;
+	cursor: pointer;
+	box-shadow: 2 2;
+}

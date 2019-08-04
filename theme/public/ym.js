@@ -2,9 +2,17 @@ $(function(){
 	$('.tagger-switch').on('click', toggleTagger);
 
 	function toggleTagger(e) {
-		$(e.target).parents('.captor').children('.tagger-window').css('visibility', 'visible');
+		var overlay = $(e.target).parents('.captor').children('.tagger-overlay');
+		overlay.css('visibility', 'visible');
+		overlay.find('.tag-input-text').focus();
+		$(document).on('keydown.overlay', function (e) {
+				if (e.key == 'Escape') {
+						closeWindow(overlay);
+				}
+		});
 		console.log(e);
 	}
+
 	function getTags($el) {
 			let tags = [];
 			$el.find('.addedTag').each(function (idx, li) {
@@ -15,6 +23,14 @@ $(function(){
 
 			return tags;
 	}
+
+	function  getFileName($el) {
+			let filename = '';
+			const container = locateTagsContainer($el);
+			return container.data('filename');
+	}
+	
+
 	function addTag(value, where) {
 		let tags = getTags(locateTagsContainer(where));
 		if (tags.indexOf(value) !== -1) {
@@ -26,53 +42,69 @@ $(function(){
 			.append($('<span>x</span>').addClass('tagRemove'))
 			.insertBefore(where);
 
+		saveTagsToServer(getTags(locateTagsContainer(where)), getFileName(where));
 		return value;
 	}
+
+	function saveTagsToServer(tags, filename) {
+			$.ajax({
+					url: 'http://127.0.0.1:3000/save/',
+					type: 'POST',
+					data: JSON.stringify({fileName: filename, tags: tags}),
+					processData: false,
+					dataType: 'json',
+					contentType: 'application/json',
+			});
+	}
+
 	function locateInsertPoint(from) {
 			return from.parents('.tag-editor').find('.tags .tagAdd')
 	}
+
 	function locateTagsContainer(from) {
 			return from.parents('.tag-editor').find('.tags')
 	}
+
 	function locateTagIput(from)
 	{
 			return from.parents('.tag-editor').find('.tag-input-text')
 	}
 
-	$.expr[":"].contains = $.expr.createPseudo(function(arg) {
-	    return function( elem ) {
-		return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
-	    };
+	function closeWindow(from) {
+			var overlay = from;
+			if (!from.hasClass('tagger-overlay')) {
+					overlay = from.parents('.tagger-overlay')
+			}
+			overlay.css('visibility', 'hidden');
+			$(document).off('keydown.overlay');
+	}
+
+	$('.tagger-editor-close').on('click', function (e) {
+			closeWindow($(e.target));
 	});
+
+	$('.tagger-overlay').on('click', function (e) {
+			if (e.target === this) {
+				closeWindow($(e.target));
+			}
+	});
+
 	$('.tags').on('click', '.tagRemove', function (event) {
 		event.preventDefault();
+		var tagsContainer = locateTagsContainer($(this));
 		$(this).parent().remove();
+		saveTagsToServer(getTags(tagsContainer), getFileName(tagsContainer));
 	});
-	$('ul.tags').click(function() {
-		$('#search-field').focus();
-	});
+
 	$('.tag-input-text').keypress(function (event) {
         if (event.which == '13') {
 				addTag($(this).val(), locateInsertPoint($(this)));
 				$(this).val('');
 		}
 	});
-	$('.tag-input-add').click(function (event) {
 
+	$('.tag-input-add').click(function (event) {
 		addTag(locateTagIput($(this)).val(), locateInsertPoint($(this)));
 		locateTagIput($(this)).val('');
 	});
-    $('#search-field').keypress(function(event) {
-        if (event.which == '13') {
-            if (($(this).val() != '') && ($(".tags .addedTag:contains('" + $(this).val() + "') ").length == 0 ))  {
-                $('<li>' + $(this).val() + '</li>')
-                    .addClass('addedTag')
-                    .data('tagName', $(this).val())
-                    .append($('<span>x</span>').addClass('tagRemove'))
-                    .insertBefore('.tags .tagAdd');
-
-            }
-            $(this).val('');
-        }
-    });
 });
