@@ -4,7 +4,15 @@ $(function(){
 	function toggleTagger(e) {
 		var overlay = $(e.target).parents('.captor').children('.tagger-overlay');
 		overlay.css('visibility', 'visible');
-		overlay.find('.tag-input-text').focus();
+		let input = overlay.find('.tag-input-text')
+		input.focus();
+		let tags = loadTagsFromServer(getFileName(input))
+			.then(tags => {
+				if (tags.data) {
+						clearTags(input)
+						insertTags(tags.data, locateInsertPoint(input))
+				}
+			})
 		$(document).on('keydown.overlay', function (e) {
 				if (e.key == 'Escape') {
 						closeWindow(overlay);
@@ -27,23 +35,41 @@ $(function(){
 	function  getFileName($el) {
 			let filename = '';
 			const container = locateTagsContainer($el);
-			return container.data('filename');
+			return container.data('filepath');
 	}
-	
+
+	function clearTags(where) {	
+			locateTagsContainer(where).find('.addedTag').each((k, v) => { $(v).remove() })
+	}
 
 	function addTag(value, where) {
 		let tags = getTags(locateTagsContainer(where));
 		if (tags.indexOf(value) !== -1) {
 				return;
 		}
-		$('<li>' + value + '</li>')
-			.addClass('addedTag')
-			.data('tagName', value)
-			.append($('<span>x</span>').addClass('tagRemove'))
-			.insertBefore(where);
+		insertTags([value], where)
 
 		saveTagsToServer(getTags(locateTagsContainer(where)), getFileName(where));
 		return value;
+	}
+
+	function insertTags(tags, where) {
+			tags.map(value => {
+				$('<li>' + value + '</li>')
+					.addClass('addedTag')
+					.data('tagName', value)
+					.append($('<span>x</span>').addClass('tagRemove'))
+					.insertBefore(where);
+			})
+	}
+
+	function loadTagsFromServer(filename) {
+			return $.ajax({
+					url: 'http://127.0.0.1:3000/tags/file/',
+					type: 'GET',
+					data: { fileName: filename },
+					dataType: 'json',
+			});
 	}
 
 	function saveTagsToServer(tags, filename) {

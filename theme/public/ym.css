@@ -21,8 +21,8 @@
 	height: 100%;
 	max-width: 350px;
 	max-height: 500px;
-	border: dashed 1px blue;
-	box-shadow: 4 4;
+	border: 0;
+	box-shadow: 0 0 10px rgba(0,0,0,0.5);
 	background-color: white;
 }
 .tag-editor ol, ul {
@@ -30,7 +30,7 @@
 }
 .tags {
     background: none repeat scroll 0 0 #fff;
-    border: 1px solid #ccc;
+    border: none;
     display: table;
     padding: 0.5em;
     width: 100%;
@@ -99,5 +99,5 @@ span.tagRemove:hover {
 	border: 1px solid gray;
 	margin: 4px;
 	cursor: pointer;
-	box-shadow: 2 2;
+	box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
