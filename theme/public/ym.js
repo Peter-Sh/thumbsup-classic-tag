@@ -1,6 +1,27 @@
 $(function(){
 	$('.tagger-switch').on('click', toggleTagger);
-
+	const Autocomplete = {	
+		input: null,
+		menu: null,
+		ti: null,
+		async updateMenu() {
+				let tags = await this.loadTags()
+				this.menu.empty()
+				tags.map(tag => {
+						this.menu.append($('<div>' + tag.name + '</div>'))
+				})
+		},
+		async loadTags() {
+				return await $.ajax({
+					url: 'http://127.0.0.1:3000/tags/',
+					type: 'GET',
+					dataType: 'json',
+				})
+		},
+		create(props) {
+				return Object.create(Autocomplete, props)
+		}
+	}
 	function toggleTagger(e) {
 		var overlay = $(e.target).parents('.captor').children('.tagger-overlay');
 		overlay.css('visibility', 'visible');
@@ -18,6 +39,13 @@ $(function(){
 						closeWindow(overlay);
 				}
 		});
+		let suggest = Autocomplete.create({
+				menu: {
+						value: overlay.find('.tag-autocomplete-menu')
+				}
+		})
+		suggest.updateMenu()
+
 		console.log(e);
 	}
 

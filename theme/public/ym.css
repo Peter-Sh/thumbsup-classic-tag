@@ -101,3 +101,13 @@ span.tagRemove:hover {
 	cursor: pointer;
 	box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
+.tag-autocomplete-menu {
+	overflow-y: scroll;
+	max-height: 35%;
+	border: solid thin #d8d8d8;
+	margin-top: 2px;
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-bottom: 5px;
+	padding: 2px;
+}
