@@ -111,3 +111,10 @@ span.tagRemove:hover {
 	margin-bottom: 5px;
 	padding: 2px;
 }
+
+.tag-autocomplete-item {
+}
+
+.tag-autocomplete-item.highlighted {
+	border: dashed thin #d8d8d8;
+}
