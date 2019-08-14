@@ -129,17 +129,17 @@ $(function(){
     },
     open() {
       this.$overlay.css('visibility', 'visible');
-      $(document).on('keydown.overlay', function (e) {
+      $(document).on('keydown.overlay',  e => {
           if (e.key == 'Escape') {
-              closeWindow(overlay);
+              this.close();
           }
       })
       this.$closeButton.on('click',  e => {
           this.close();
       })
       this.$overlay.on('click',  e => {
-          if (e.target === this) {
-            closeWindow($(e.target));
+          if (e.target === e.currentTarget) {
+            this.close();
           }
       })
       this.$tags.on('click.tagRemove', '.tagRemove', event => {
