@@ -1,3 +1,5 @@
+// vim: set expandtab tabstop=2 shiftwidth=2 :
+"use strict"
 $(function(){
   $('.tagger-switch').on('click', toggleTagger);
 
@@ -53,11 +55,54 @@ $(function(){
     }
   }
 
+  const Tag = {
+    value: null,
+    active: true,
+    create(value, active = true) {
+      return Object.create(Tag, {
+        value: {
+          value: value
+        },
+        active: {
+          value: active
+        }
+      })
+    }
+  }
+
+  const TagsCollection = {
+    tags: [],
+    changeHandler: null,
+
+    addTag(value, active = true) {
+      this.tags.push(Tag.create(value, active))
+      this.changeHandler()
+    },
+    create(changeHandler) {
+      return Object.create(TagsCollection, {
+        changeHandler: {
+          value: changeHandler
+        }
+      })
+    },
+    clear() {
+      this.tags = []
+    },
+    getTags() {
+      return this.tags
+    },
+  }
+
   const TagEditor = {
     $overlay: null,
     $tags: null,
     $input: null,
     $insertPoint: null,
+    
+    tags: null,
+
+    renderEnqueued: false,
+
     addTag(value) {
       if (this.getTags().indexOf(value) !== -1) {
           return;
@@ -69,12 +114,16 @@ $(function(){
     },
     insertTags(tags) {
       tags.map(value => {
-        $('<li>' + value + '</li>')
+          this.tags.addTag(value)
+          this.createActiveTagElement(value).insertBefore(this.$insertPoint);
+      })
+    },
+    createActiveTagElement(value) {
+        return $('<li>' + value + '</li>')
           .addClass('addedTag')
           .data('tagName', value)
-          .append($('<span>x</span>').addClass('tagRemove'))
-          .insertBefore(this.$insertPoint);
-      })
+          .append($('<span>x</span>')
+          .addClass('tagRemove'))
     },
     saveTagsToServer(tags, fileName) {
       $.ajax({
@@ -118,7 +167,7 @@ $(function(){
       this.$tags.find('.addedTag').each((k, v) => { $(v).remove() })
     },
     create(props) {
-      return Object.create(TagEditor, {
+      const editor = Object.create(TagEditor, {
         $overlay: { value: props.$overlay },
         $input: { value: props.$input },
         $insertPoint: { value: props.$insertPoint },
@@ -126,6 +175,11 @@ $(function(){
         $closeButton: { value: props.$overlay.find('.tagger-editor-close') },
         $addButton: { value: props.$overlay.find('.tag-input-add') },
       })
+      editor.initProps()
+      return editor
+    },
+    initProps() {
+      this.tags = TagsCollection.create(() => this.enqueueRender())
     },
     open() {
       this.$overlay.css('visibility', 'visible');
@@ -165,10 +219,22 @@ $(function(){
     destroy() {
       $(document).off('keydown.overlay')
       this.$overlay.off('click')
-      this.closeButton.off('click')
+      this.$closeButton.off('click')
       this.$tags.off('click.tagRemove')
       this.$input.off('keypress')
       this.$addButton.off('click')
+    },
+    render() {
+      console.log(this.tags.getTags());
+    },
+    enqueueRender() {
+      if (!this.renderEnqueued) {
+        this.renderEnqueued = true
+        setTimeout(() => {
+          this.renderEnqueued = false
+          this.render()
+        }, 0)
+      }
     }
   }
 
