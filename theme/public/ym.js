@@ -3,66 +3,17 @@
 $(function(){
   $('.tagger-switch').on('click', toggleTagger);
 
-  const Autocomplete = {
-    input: null,
-    menu: null,
-    editor: null,
-    async updateMenu() {
-        let tags = await this.loadTags()
-        this.menu.empty()
-        tags.map(tag => {
-            this.menu.append($('<div class="tag-autocomplete-item">' + tag.name + '</div>').data('tagName', tag.name))
-        })
-    },
-    async loadTags() {
-        return await $.ajax({
-          url: 'http://127.0.0.1:3000/tags/',
-          type: 'GET',
-          dataType: 'json',
-        })
-    },
-    create(props) {
-        if (!props.menu) {
-          throw 'menu is required'
-        }
-        const me = Object.create(Autocomplete, {
-          menu: {
-            value: props.menu
-          },
-          editor: {
-            value: props.editor
-          },
-        })
-        me.init()
-        return me
-    },
-    init() {
-        this.menu.on('mouseenter mouseleave', '.tag-autocomplete-item', e => { this.highlightItem($(e.target)) })
-        this.menu.on('click', '.tag-autocomplete-item', e => { this.addItem($(e.target)) })
-    },
-    destroy() {
-      this.menu.off('mouseenter mouseleave')
-    },
-    highlightItem(item) {
-      if (item.hasClass('highlighted')) {
-        item.removeClass('highlighted')
-      } else {
-        item.addClass('highlighted')
-      }
-    },
-    addItem(item) {
-      this.editor.newTag(item.data('tagName'))
-    }
-  }
-
-
   const TagsCollection = {
     tags: null,
     changeHandler: null,
 
     addTag(value) {
+      if (this.hasTag(value)) {
+        return false
+      }
       this.tags.push(value)
       this.changeHandler()
+      return true
     },
     create(changeHandler) {
       return Object.create(TagsCollection, {
@@ -213,6 +164,9 @@ $(function(){
         this.activeTags.remove($(event.target).data('tagname'))
         this.saveTagsToServer(this.activeTags.getTags(), this.getFileName())
       })
+      this.$tags.on('click.inactiveTag', '.inactiveTag', event => {
+        this.activeTags.addTag($(event.target).data('tagname'))
+      })
       this.$input.keydown(event => {
         let val = $(event.target).val()
         if (event.which == '13') {
@@ -236,6 +190,7 @@ $(function(){
       this.$overlay.off('click')
       this.$closeButton.off('click')
       this.$tags.off('click.tagRemove')
+      this.$tags.off('click.inactiveTag')
       this.$input.off('keypress')
       this.$addButton.off('click')
     },
@@ -243,7 +198,8 @@ $(function(){
       let tags = this.searchTags.getTags().length ? this.searchTags : this.activeTags
       let root = $('<span></span>');
       tags.getTags().map((tag) => {
-        root.append(this.createTagElement(tag))
+        let active = this.activeTags.hasTag(tag)
+        root.append(this.createTagElement(tag, active))
       })
       this.$tags.html(root.html())
     },
@@ -268,10 +224,5 @@ $(function(){
     })
     editor.initialize()
     editor.open()
-    let suggest = Autocomplete.create({
-      menu: overlay.find('.tag-autocomplete-menu'),
-      editor: editor
-    })
-    suggest.updateMenu()
   }
 });
