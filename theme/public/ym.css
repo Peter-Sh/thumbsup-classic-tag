@@ -35,16 +35,18 @@
     padding: 0.5em;
     width: 100%;
 }
-.tags li.tagAdd, .tags li.addedTag {
+.tags li.tagAdd, .tags li.tag {
     float: left;
     margin-left: 0.25em;
     margin-right: 0.25em;
 }
-.tags li.addedTag {
-    background: none repeat scroll 0 0 #019f86;
+.tags li.tag {
     border-radius: 2px;
     color: #fff;
     padding: 0.25em;
+}
+.tags li.activeTag {
+    background: none repeat scroll 0 0 #019f86;
 }
 .tags li.inactiveTag {
 	background-color: #d3d3d3;
@@ -59,9 +61,9 @@
 /* tag input { */
 .tag-input-wrap {
 	display: flex;
-    	border: 1px solid transparent;
-    	padding: 0.5em;
-    	border-radius: 2px;
+    border: 1px solid transparent;
+    padding: 0.5em;
+    border-radius: 2px;
 }
 .tag-input-text {
 	flex: 1 1 auto;

@@ -55,27 +55,13 @@ $(function(){
     }
   }
 
-  const Tag = {
-    value: null,
-    active: true,
-    create(value, active = true) {
-      return Object.create(Tag, {
-        value: {
-          value: value
-        },
-        active: {
-          value: active
-        }
-      })
-    }
-  }
 
   const TagsCollection = {
     tags: null,
     changeHandler: null,
 
-    addTag(value, active = true) {
-      this.tags.push(Tag.create(value, active))
+    addTag(value) {
+      this.tags.push(value)
       this.changeHandler()
     },
     create(changeHandler) {
@@ -89,7 +75,7 @@ $(function(){
       })
     },
     clear() {
-      this.tags = []
+      this.tags.splice(0, this.tags.length)
     },
     remove(value) {
       let index = this.findByValue(value)
@@ -102,7 +88,8 @@ $(function(){
       return this.tags
     },
     findByValue(value) {
-      return this.tags.findIndex(tag => (tag.value === value && tag.active))
+      //return this.tags.findIndex(tag => (tag.value === value && tag.active))
+      return this.tags.indexOf(value)
     },
     hasTag(value) {
       return this.findByValue(value) > -1;
@@ -115,38 +102,40 @@ $(function(){
     $input: null,
     $insertPoint: null,
     
-    tags: null,
-
     renderEnqueued: false,
 
     newTag(value) {
-      if (this.tags.hasTag(value)) {
+      if (this.activeTags.hasTag(value)) {
           return
       }
       this.insertTags([value])
 
-      this.saveTagsToServer(this.tags.getTags(), this.getFileName());
+      this.saveTagsToServer(this.activeTags.getTags(), this.getFileName());
     },
     insertTags(tags) {
-      tags.map(value => this.tags.addTag(value))
+      tags.map(value => this.activeTags.addTag(value))
     },
-    createActiveTagElement(value) {
-        return $('<li>' + value + '</li>')
-          .addClass('addedTag')
-          .attr('id', value)
+    createTagElement(value, active = true) {
+      let tagClass = active ? 'activeTag' : 'inactiveTag'
+      let tag = $('<li>' + value + '</li>')
+        .addClass('tag')
+        .addClass(tagClass)
+        .attr('id', value)
+        .attr('data-tagname', value)
+      if (active) {
+        tag.append(
+          $('<span>&#215;</span>')
+          .addClass('tagRemove')
           .attr('data-tagname', value)
-          .append(
-            $('<span>&#215;</span>')
-            .addClass('tagRemove')
-            .attr('data-tagname', value)
-          )
+        )
+      }
+      return tag
     },
     saveTagsToServer(tags, fileName) {
-      let tagsToSave = tags.map((tag) => tag.value)
       $.ajax({
           url: 'http://127.0.0.1:3000/save/',
           type: 'POST',
-          data: JSON.stringify({fileName: fileName, tags: tagsToSave}),
+          data: JSON.stringify({fileName: fileName, tags: tags}),
           processData: false,
           dataType: 'json',
           contentType: 'application/json',
@@ -163,11 +152,19 @@ $(function(){
           dataType: 'json',
       });
     },
+    loadAllTags() {
+        return $.ajax({
+          url: 'http://127.0.0.1:3000/tags/',
+          type: 'GET',
+          dataType: 'json',
+        })
+    },
     async initialize() {
       let tags = await this.loadTagsFromServer(this.getFileName())
       if (tags.data) {
         this.insertTags(tags.data)
       }
+      this.allTagsCache = this.loadAllTags()
     },
     create(props) {
       const editor = Object.create(TagEditor, {
@@ -177,12 +174,24 @@ $(function(){
         $tags: { value: props.$tags },
         $closeButton: { value: props.$overlay.find('.tagger-editor-close') },
         $addButton: { value: props.$overlay.find('.tag-input-add') },
+        renderEnqueued: { value: false, writable: true },
       })
       editor.initProps()
       return editor
     },
     initProps() {
-      this.tags = TagsCollection.create(() => this.enqueueRender())
+      this.activeTags = TagsCollection.create(() => this.enqueueRender())
+      this.searchTags = TagsCollection.create(() => this.enqueueRender())
+    },
+    async updateSearchTags(val) {
+      let tagsResult = await this.allTagsCache
+      this.searchTags.clear()
+      tagsResult.map((tagData) => {
+        if (tagData.name.indexOf(val) > -1) {
+          this.searchTags.addTag(tagData.name)
+        }
+      })
+      console.log(this.searchTags.getTags())
     },
     open() {
       this.$overlay.css('visibility', 'visible');
@@ -201,14 +210,16 @@ $(function(){
       })
       this.$tags.on('click.tagRemove', '.tagRemove', event => {
         event.preventDefault();
-        //$(event.target).parent().remove();
-        this.tags.remove($(event.target).data('tagname'))
-        this.saveTagsToServer(this.tags.getTags(), this.getFileName())
+        this.activeTags.remove($(event.target).data('tagname'))
+        this.saveTagsToServer(this.activeTags.getTags(), this.getFileName())
       })
-      this.$input.keypress(event => {
+      this.$input.keydown(event => {
+        let val = $(event.target).val()
         if (event.which == '13') {
-          this.newTag($(event.target).val())
+          this.newTag(val)
           $(event.target).val('')
+        } else {
+          this.updateSearchTags(val)
         }
       })
       this.$addButton.on('click', event => {
@@ -229,9 +240,10 @@ $(function(){
       this.$addButton.off('click')
     },
     render() {
+      let tags = this.searchTags.getTags().length ? this.searchTags : this.activeTags
       let root = $('<span></span>');
-      this.tags.getTags().map((tag) => {
-        root.append(this.createActiveTagElement(tag.value))
+      tags.getTags().map((tag) => {
+        root.append(this.createTagElement(tag))
       })
       this.$tags.html(root.html())
     },
