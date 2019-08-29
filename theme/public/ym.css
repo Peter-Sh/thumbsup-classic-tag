@@ -24,19 +24,24 @@
 	border: 0;
 	box-shadow: 0 0 10px rgba(0,0,0,0.5);
 	background-color: white;
+    display: flex;
+    flex-direction: column;
 }
 .tag-editor ol, ul {
     list-style: outside none none;
 }
 .tags {
     background: none repeat scroll 0 0 #fff;
-    border: none;
-    display: table;
+    border: solid thin #b3b3b3;
+    display: block;
     padding: 0.5em;
     width: 100%;
+    overflow-y: auto;
+    flex-grow: 1;
 }
 .tags li.tagAdd, .tags li.tag {
     float: left;
+    cursor: pointer;
     margin-left: 0.25em;
     margin-right: 0.25em;
 }
@@ -95,32 +100,53 @@ span.tagRemove {
 span.tagRemove:hover {
     color: #222222;
 }  
+.tagger-editor-header-wrapper {
+    position: relative;
+	width: 100%;
+}
 .tagger-editor-header {
 	display: flex;
 	width: 100%;
 	justify-content: flex-end;
+    padding-top: 5px;
 }
 .tagger-editor-close {
-	border: 1px solid gray;
-	padding: 2px;
-	margin: 4px;
+    display: flex;
+	justify-content: center;
+    align-content: center;
+    background-color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+	padding-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 4px;
+    margin-right: 4px;
+	margin-top: 0;
 	cursor: pointer;
-	box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
-.tag-autocomplete-menu {
-	overflow-y: scroll;
-	max-height: 35%;
-	border: solid thin #d8d8d8;
-	margin-top: 2px;
-	margin-left: 5px;
-	margin-right: 5px;
-	margin-bottom: 5px;
-	padding: 2px;
-}
-
-.tag-autocomplete-item {
+.tagger-pressure {
+    flex: 1 1 auto;
 }
 
 .tag-autocomplete-item.highlighted {
 	border: dashed thin #d8d8d8;
+}
+@media (min-width: 400px) {
+    .tagger-editor-header {
+        position: absolute;
+        left: 30px;
+    }
+    .tagger-editor-close {
+	    border: 1px solid gray;
+	    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+}
+@media (max-width: 400px) {
+    .tags li.tag {
+        font-weight: 600;
+    }
 }

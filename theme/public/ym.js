@@ -3,18 +3,14 @@
 $(function(){
   $('.tagger-switch').on('click', toggleTagger);
 
-  const TagsCollection = {
-    tags: null,
-    changeHandler: null,
+  window.onpopstate = function (e) {
+    if (e.state === 'closeTagEditor') {
+      $(document).trigger('closeTagEditor')
+      history.back()
+    }
+  }
 
-    addTag(value) {
-      if (this.hasTag(value)) {
-        return false
-      }
-      this.tags.push(value)
-      this.changeHandler()
-      return true
-    },
+  const TagsCollection = {
     create(changeHandler) {
       return Object.create(TagsCollection, {
         tags: {
@@ -25,21 +21,30 @@ $(function(){
         }
       })
     },
+    addTag(value) {
+      if (this.hasTag(value)) {
+        return false
+      }
+      this.tags.push(value)
+      this.changeHandler('add', value)
+      return true
+    },
     clear() {
       this.tags.splice(0, this.tags.length)
+      this.changeHandler('clear')
     },
-    remove(value) {
+    removeTag(value) {
       let index = this.findByValue(value)
       if (index !== -1) {
         this.tags.splice(index, 1)
-        this.changeHandler()
+        this.changeHandler('remove', value)
       }
     },
     getTags() {
+      this.tags.sort()
       return this.tags
     },
     findByValue(value) {
-      //return this.tags.findIndex(tag => (tag.value === value && tag.active))
       return this.tags.indexOf(value)
     },
     hasTag(value) {
@@ -48,23 +53,42 @@ $(function(){
   }
 
   const TagEditor = {
-    $overlay: null,
-    $tags: null,
-    $input: null,
-    $insertPoint: null,
-    
-    renderEnqueued: false,
-
+    create(props) {
+      const editor = Object.create(this, {
+        $overlay: { value: props.$overlay },
+        $input: { value: props.$input },
+        $insertPoint: { value: props.$insertPoint },
+        $tags: { value: props.$tags },
+        $closeButton: { value: props.$overlay.find('.tagger-editor-close') },
+        $addButton: { value: props.$overlay.find('.tag-input-add') },
+        renderEnqueued: { value: false, writable: true },
+        updateSearchTagsTimeoutId: { value: false, writable: true },
+        lastInputValue: { value: "", writable: true},
+        lastCreatedTag: { value: null, writable: true },
+        lastChangedTag: { value: null, writable: true },
+      })
+      editor.initProps()
+      return editor
+    },
+    initProps() {
+      this.activeTags = TagsCollection.create((op, val) => this.enqueueRender(op, val))
+      this.searchTags = TagsCollection.create(() => this.enqueueRender())
+    },
     newTag(value) {
       if (this.activeTags.hasTag(value)) {
           return
       }
       this.insertTags([value])
+      this.searchTags.addTag(value)
+      this.lastCreatedTag = value
 
       this.saveTagsToServer(this.activeTags.getTags(), this.getFileName());
     },
     insertTags(tags) {
-      tags.map(value => this.activeTags.addTag(value))
+      tags.map(value => {
+          this.activeTags.addTag(value)
+        }
+      )
     },
     createTagElement(value, active = true) {
       let tagClass = active ? 'activeTag' : 'inactiveTag'
@@ -73,18 +97,11 @@ $(function(){
         .addClass(tagClass)
         .attr('id', value)
         .attr('data-tagname', value)
-      if (active) {
-        tag.append(
-          $('<span>&#215;</span>')
-          .addClass('tagRemove')
-          .attr('data-tagname', value)
-        )
-      }
       return tag
     },
     saveTagsToServer(tags, fileName) {
       $.ajax({
-          url: 'http://127.0.0.1:3000/save/',
+          url: this.serverUrl() + '/save/',
           type: 'POST',
           data: JSON.stringify({fileName: fileName, tags: tags}),
           processData: false,
@@ -95,54 +112,72 @@ $(function(){
     getFileName() {
       return this.$tags.data('filepath');
     },
+    serverUrl() {
+      let serverUrl = '';
+      let u = new URL(document.location.href)
+      if (u.protocol.match('^https?')) {
+        u.port = 3000;
+        serverUrl = u.protocol + '//' + u.host
+      } else {
+        serverUrl = 'http://127.0.0.1:3000'
+      }
+      return serverUrl
+    },
     loadTagsFromServer(fileName) {
       return $.ajax({
-          url: 'http://127.0.0.1:3000/tags/file/',
+          url: this.serverUrl() + '/tags/file/',
           type: 'GET',
           data: { fileName: fileName },
           dataType: 'json',
       });
     },
     loadAllTags() {
-        return $.ajax({
-          url: 'http://127.0.0.1:3000/tags/',
+        this.allTagsCache = $.ajax({
+          url: this.serverUrl() + '/tags/',
           type: 'GET',
           dataType: 'json',
         })
     },
     async initialize() {
-      let tags = await this.loadTagsFromServer(this.getFileName())
+      let tags = null
+      try {
+        tags = await this.loadTagsFromServer(this.getFileName())
+      } catch (e) {
+        console.log(e)
+      }
       if (tags.data) {
         this.insertTags(tags.data)
       }
-      this.allTagsCache = this.loadAllTags()
-    },
-    create(props) {
-      const editor = Object.create(TagEditor, {
-        $overlay: { value: props.$overlay },
-        $input: { value: props.$input },
-        $insertPoint: { value: props.$insertPoint },
-        $tags: { value: props.$tags },
-        $closeButton: { value: props.$overlay.find('.tagger-editor-close') },
-        $addButton: { value: props.$overlay.find('.tag-input-add') },
-        renderEnqueued: { value: false, writable: true },
-      })
-      editor.initProps()
-      return editor
-    },
-    initProps() {
-      this.activeTags = TagsCollection.create(() => this.enqueueRender())
-      this.searchTags = TagsCollection.create(() => this.enqueueRender())
+      this.loadAllTags()
     },
     async updateSearchTags(val) {
       let tagsResult = await this.allTagsCache
       this.searchTags.clear()
       tagsResult.map((tagData) => {
-        if (tagData.name.indexOf(val) > -1) {
+        if (tagData.name.indexOf(val) === 0) {
           this.searchTags.addTag(tagData.name)
         }
       })
       console.log(this.searchTags.getTags())
+    },
+    enqueueUpdateSearchTags() {
+      let val = this.$input.val()
+      if (val == this.lastInputValue) {
+        return
+      } else {
+        this.lastInputValue = val
+      }
+      if (this.updateSearchTagsTimeoutId) {
+        clearTimeout(this.updateSearchTagsTimeoutId)
+        this.updateSearchTagsTimeoutId = false;
+      }
+      this.updateSearchTagsTimeoutId = setTimeout(() => {
+        this.updateSearchTags(val)
+        this.updateSearchTagsTimeoutId = false
+      }, 200)
+    },
+    searchIsActive() {
+      return this.$input.val().length != 0
     },
     open() {
       this.$overlay.css('visibility', 'visible');
@@ -159,21 +194,27 @@ $(function(){
             this.close();
           }
       })
-      this.$tags.on('click.tagRemove', '.tagRemove', event => {
-        event.preventDefault();
-        this.activeTags.remove($(event.target).data('tagname'))
-        this.saveTagsToServer(this.activeTags.getTags(), this.getFileName())
+
+      history.pushState('closeTagEditor', '')
+      history.pushState('openTagEditor', '')
+      $(document).on('closeTagEditor', e => {
+        this.close()
       })
+
       this.$tags.on('click.inactiveTag', '.inactiveTag', event => {
         this.activeTags.addTag($(event.target).data('tagname'))
+        this.saveTagsToServer(this.activeTags.getTags(), this.getFileName());
       })
-      this.$input.keydown(event => {
-        let val = $(event.target).val()
+      this.$tags.on('click.activeTags', '.activeTag', event => {
+        this.activeTags.removeTag($(event.target).data('tagname'))
+        this.saveTagsToServer(this.activeTags.getTags(), this.getFileName());
+      })
+      this.$input.on('keyup', event => {
         if (event.which == '13') {
-          this.newTag(val)
+          this.newTag($(event.target).val())
           $(event.target).val('')
         } else {
-          this.updateSearchTags(val)
+            this.enqueueUpdateSearchTags()
         }
       })
       this.$addButton.on('click', event => {
@@ -184,32 +225,59 @@ $(function(){
     close() {
       this.$overlay.css('visibility', 'hidden');
       this.destroy()
+      if (history.state === 'openTagEditor') {
+        history.go(-2)
+      }
     },
     destroy() {
       $(document).off('keydown.overlay')
       this.$overlay.off('click')
       this.$closeButton.off('click')
-      this.$tags.off('click.tagRemove')
       this.$tags.off('click.inactiveTag')
+      this.$tags.off('click.activeTag')
       this.$input.off('keypress')
       this.$addButton.off('click')
+      $(document).off('closeTagEditor')
     },
     render() {
-      let tags = this.searchTags.getTags().length ? this.searchTags : this.activeTags
+      if (this.lastChangedTag) {
+        let changedTag = this.$tags.find('#' + this.lastChangedTag)
+        if (this.activeTags.hasTag(this.lastChangedTag)) {
+          changedTag
+            .removeClass('inactiveTag')
+            .addClass('activeTag')
+        } else {
+          changedTag
+            .removeClass('activeTag')
+            .addClass('inactiveTag')
+        }
+        this.lastChangedTag = null
+        return
+      }
+      let tags = this.searchIsActive() ? this.searchTags : this.activeTags
       let root = $('<span></span>');
       tags.getTags().map((tag) => {
         let active = this.activeTags.hasTag(tag)
         root.append(this.createTagElement(tag, active))
       })
       this.$tags.html(root.html())
+      if (this.lastCreatedTag) {
+        this.$tags.find('#' + this.lastCreatedTag).get(0).scrollIntoView({ behavior: 'smooth' })
+        this.lastCreatedTag = null
+      }
     },
-    enqueueRender() {
+    enqueueRender(op = null, val = null) {
       if (!this.renderEnqueued) {
         this.renderEnqueued = true
+        if (op === 'add' || op === 'remove') {
+          this.lastChangedTag = val
+        }
         setTimeout(() => {
           this.renderEnqueued = false
           this.render()
         }, 0)
+      } else {
+        this.lastChangedTag = null
       }
     }
   }

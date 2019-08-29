@@ -31,8 +31,6 @@
     <script src="{{relative 'public/lightgallery/js/lg-thumbnail.js'}}"></script>
     <script src="{{relative 'public/lightgallery/js/lg-video.js'}}"></script>
     <script src="{{relative 'public/lightgallery/js/lg-exif.min.js'}}"></script>
-    <!-- select2 -->
-    <script src="{{relative 'public/select2/select2.min.js'}}"></script>
     <!-- ym -->
     <script src="{{relative 'public/ym.js'}}"></script>
 
@@ -46,10 +44,6 @@
           counter: true,
           videojs: true
         });
-
-	$(".tagger").select2({
-		tags: true
-	});
 
 	$(".captor").on('click', function (e) {
 		e.preventDefault();
