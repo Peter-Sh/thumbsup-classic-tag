@@ -32,12 +32,11 @@
 }
 .tags {
     background: none repeat scroll 0 0 #fff;
-    border: solid thin #b3b3b3;
     display: block;
-    padding: 0.5em;
-    width: 100%;
+    padding: 5px;
     overflow-y: auto;
-    flex-grow: 1;
+    flex: 0 0 auto;
+    max-height: 80%;
 }
 .tags li.tagAdd, .tags li.tag {
     float: left;
@@ -131,10 +130,10 @@ span.tagRemove:hover {
 .tagger-pressure {
     flex: 1 1 auto;
 }
-
-.tag-autocomplete-item.highlighted {
-	border: dashed thin #d8d8d8;
+.tag-highlight {
+    background-color: #3c5a79;
 }
+
 @media (min-width: 400px) {
     .tagger-editor-header {
         position: absolute;

@@ -52,6 +52,29 @@ $(function(){
     },
   }
 
+  const TagSearch = {
+    create() {
+      return Object.create(this)
+    },
+    match(text, term) {
+      let found = false
+      if (text && term) {
+        found = (text.toLocaleLowerCase().indexOf(term.toLocaleLowerCase()) === 0)
+      }
+      return found
+    },
+    highlight(text, term) {
+      let t = text
+      if (this.match(text, term)) {
+        t = '<span class="tag-highlight">'
+          + text.substr(0, term.length)
+          + '</span>'
+          + text.substr(term.length)
+      }
+      return t
+    }
+  }
+
   const TagEditor = {
     create(props) {
       const editor = Object.create(this, {
@@ -66,6 +89,7 @@ $(function(){
         lastInputValue: { value: "", writable: true},
         lastCreatedTag: { value: null, writable: true },
         lastChangedTag: { value: null, writable: true },
+        search: { value: TagSearch.create() },
       })
       editor.initProps()
       return editor
@@ -90,9 +114,9 @@ $(function(){
         }
       )
     },
-    createTagElement(value, active = true) {
+    createTagElement(value, active = true, search = null) {
       let tagClass = active ? 'activeTag' : 'inactiveTag'
-      let tag = $('<li>' + value + '</li>')
+      let tag = $('<li>' + this.search.highlight(value, search) + '</li>')
         .addClass('tag')
         .addClass(tagClass)
         .attr('id', value)
@@ -150,11 +174,11 @@ $(function(){
       }
       this.loadAllTags()
     },
-    async updateSearchTags(val) {
+    async updateSearchTags(term) {
       let tagsResult = await this.allTagsCache
       this.searchTags.clear()
       tagsResult.map((tagData) => {
-        if (tagData.name.indexOf(val) === 0) {
+        if (this.search.match(tagData.name, term)) {
           this.searchTags.addTag(tagData.name)
         }
       })
@@ -241,7 +265,7 @@ $(function(){
     },
     render() {
       if (this.lastChangedTag) {
-        let changedTag = this.$tags.find('#' + this.lastChangedTag)
+        let changedTag = this.$tags.find('[id="' + this.lastChangedTag + '"]')
         if (this.activeTags.hasTag(this.lastChangedTag)) {
           changedTag
             .removeClass('inactiveTag')
@@ -258,7 +282,7 @@ $(function(){
       let root = $('<span></span>');
       tags.getTags().map((tag) => {
         let active = this.activeTags.hasTag(tag)
-        root.append(this.createTagElement(tag, active))
+        root.append(this.createTagElement(tag, active, this.lastInputValue))
       })
       this.$tags.html(root.html())
       if (this.lastCreatedTag) {
