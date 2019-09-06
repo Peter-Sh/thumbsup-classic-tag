@@ -49,7 +49,18 @@
            height="{{@root.gallery.thumbSize}}"
            alt="{{filename}}" />
     </a>
-	  <div id="capt-{{filename}}" class="captor">{{> tagger}}</div>
+    <div class="tagger-controls-wrap">
+        <div class="tagger-controls">
+            <div class="tagger-controls-checkbox-wrap">
+                <input class="tagger-controls-checkbox" type="checkbox">
+            </div>
+            <div class="tagger-controls-spacer"></div>
+            <div class="tagger-controls-button-wrap">
+                <button class="tagger-controls-button tagger-switch">Edit tags</button>
+            </div>
+        </div>
+        {{> tagger}}
+    </div>
     {{#if meta.animated}}
       <img class="video-overlay" src="{{relative 'public/play.png'}}" />
     {{/if}}

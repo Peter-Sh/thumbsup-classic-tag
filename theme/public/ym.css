@@ -149,3 +149,27 @@ span.tagRemove:hover {
         font-weight: 600;
     }
 }
+.tagger-controls-wrap {
+	position: relative;
+}
+.tagger-controls {
+	display: flex;
+	width: 100%;
+	position: absolute;
+	top: -25px;
+}
+.tagger-controls-checkbox-wrap {
+}
+.tagger-controls-checkbox {
+}
+.tagger-controls-spacer {
+	flex: 1 1 auto;
+}
+.tagger-controls-button-wrap {
+}
+.tagger-controls-button {
+                    margin-right: 5px;
+                    background-color: rgba(117,117,117,0.5);
+                    border-width: 1px;
+                    color: white;
+}

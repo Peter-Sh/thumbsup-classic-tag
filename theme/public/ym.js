@@ -1,8 +1,6 @@
 // vim: set expandtab tabstop=2 shiftwidth=2 :
 "use strict"
 $(function(){
-  $('.tagger-switch').on('click', toggleTagger);
-
   window.onpopstate = function (e) {
     if (e.state === 'closeTagEditor') {
       $(document).trigger('closeTagEditor')
@@ -217,6 +215,8 @@ $(function(){
           if (e.target === e.currentTarget) {
             this.close();
           }
+          e.preventDefault();
+          e.stopPropagation();
       })
 
       history.pushState('closeTagEditor', '')
@@ -229,11 +229,12 @@ $(function(){
         this.activeTags.addTag($(event.target).data('tagname'))
         this.saveTagsToServer(this.activeTags.getTags(), this.getFileName());
       })
-      this.$tags.on('click.activeTags', '.activeTag', event => {
+      this.$tags.on('click.activeTag', '.activeTag', event => {
         this.activeTags.removeTag($(event.target).data('tagname'))
         this.saveTagsToServer(this.activeTags.getTags(), this.getFileName());
       })
       this.$input.on('keyup', event => {
+        console.log('keyup', $(event.target).val(), event.which)
         if (event.which == '13') {
           this.newTag($(event.target).val())
           $(event.target).val('')
@@ -259,7 +260,7 @@ $(function(){
       this.$closeButton.off('click')
       this.$tags.off('click.inactiveTag')
       this.$tags.off('click.activeTag')
-      this.$input.off('keypress')
+      this.$input.off('keyup')
       this.$addButton.off('click')
       $(document).off('closeTagEditor')
     },
@@ -307,7 +308,7 @@ $(function(){
   }
 
   function toggleTagger(e) {
-    var overlay = $(e.target).parents('.captor').children('.tagger-overlay');
+    var overlay = $(e.target).parents('.tagger-controls-wrap').find('.tagger-overlay');
     let editor = TagEditor.create({
       $overlay: overlay,
       $insertPoint: overlay.find('.tags .tagAdd'),
@@ -317,4 +318,12 @@ $(function(){
     editor.initialize()
     editor.open()
   }
+
+  $(".tagger-switch").on('click', function (e) {
+    toggleTagger(e)
+  });
+	$(".tagger-controls").on('click', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+	});
 });
