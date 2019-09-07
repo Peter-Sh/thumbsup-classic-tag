@@ -1,175 +1,186 @@
+/* vim: set et ts=2 sw=2:  */
 .tagger-cont {
-	display: flex;
-	justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 .tagger-overlay {
-	visibility: hidden;
-	z-index: 1000;
-	/*background-color: green;*/
-	top: 0;
-	left: 0;
-	right: 1vw;
-	bottom: 1vh;
-	border: 0;
-	position: fixed;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+  visibility: hidden;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  right: 1vw;
+  bottom: 1vh;
+  border: 0;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .tag-editor {
-	width: 100%;
-	height: 100%;
-	max-width: 350px;
-	max-height: 500px;
-	border: 0;
-	box-shadow: 0 0 10px rgba(0,0,0,0.5);
-	background-color: white;
-    display: flex;
-    flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-width: 350px;
+  max-height: 500px;
+  border: 0;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  background-color: white;
+  display: flex;
+  flex-direction: column;
 }
 .tag-editor ol, ul {
-    list-style: outside none none;
+  list-style: outside none none;
 }
 .tags {
-    background: none repeat scroll 0 0 #fff;
-    display: block;
-    padding: 5px;
-    overflow-y: auto;
-    flex: 0 0 auto;
-    max-height: 80%;
+  background: none repeat scroll 0 0 #fff;
+  display: block;
+  padding: 1px;
+  overflow-y: auto;
+  flex: 0 1 auto;
+  min-height: 0;
 }
 .tags li.tagAdd, .tags li.tag {
-    float: left;
-    cursor: pointer;
-    margin-left: 0.25em;
-    margin-right: 0.25em;
+  float: left;
+  cursor: pointer;
+  margin-left: 0.25em;
+  margin-right: 0.25em;
 }
 .tags li.tag {
-    border-radius: 2px;
-    color: #fff;
-    padding: 0.25em;
+  border-radius: 2px;
+  color: #fff;
+  padding: 0.25em;
 }
 .tags li.activeTag {
-    background: none repeat scroll 0 0 #019f86;
+  background: none repeat scroll 0 0 #019f86;
 }
 .tags li.inactiveTag {
-	background-color: #d3d3d3;
+  background-color: #d3d3d3;
 }
 .tags input, li.addedTag {
-    border: 1px solid transparent;
-    border-radius: 2px;
-    box-shadow: none;
-    display: block;
-    padding: 0.5em;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  box-shadow: none;
+  display: block;
+  padding: 0.5em;
 }
 /* tag input { */
 .tag-input-wrap {
-	display: flex;
-    border: 1px solid transparent;
-    padding: 0.5em;
-    border-radius: 2px;
+  display: flex;
+  border: 1px solid transparent;
+  margin: 3px;
+  border-radius: 2px;
 }
 .tag-input-text {
-	flex: 1 1 auto;
-    	border-color: #000;
-	border-width: 1;
-	border-top: 1;
-	border-bottom: 1;
-	border-left: 1;
-	border-right: 0;
-    	/* border-radius: 2px;*/
+  flex: 1 1 auto;
+  border-color: #ddd;
+  border-width: 1px;
 }
 .tag-input-add {
-	background-color: #019f86;
-    	border-color: #000;
-	border-width: 1;
-	border-top: 1;
-	border-bottom: 1;
-	border-left: 0;
-	border-right: 1;
-	font-weight: bold;
-	font-size: 120%;
+  background-color: #019f86;
+  border: 1px #ddd solid;
+  border-color: #ddd;
+  font-weight: bold;
+  font-size: 120%;
+  color: white;
+  cursor: pointer;
+}
+.tag-input-add-icon {
+  width: 16px;
+  height: 16px;
 }
 /* } */
 span.tagRemove {
-    cursor: pointer;
-    display: inline-block;
-    padding-left: 0.5em;
+  cursor: pointer;
+  display: inline-block;
+  padding-left: 0.5em;
 }
 span.tagRemove:hover {
-    color: #222222;
+  color: #222222;
 }  
 .tagger-editor-header-wrapper {
-    position: relative;
-	width: 100%;
+  position: relative;
+  width: 100%;
 }
 .tagger-editor-header {
-	display: flex;
-	width: 100%;
-	justify-content: flex-end;
-    padding-top: 5px;
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  padding-top: 5px;
 }
 .tagger-editor-close {
-    display: flex;
-	justify-content: center;
-    align-content: center;
-    background-color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    padding-bottom: 4px;
-    padding-left: 4px;
-    padding-right: 4px;
-	padding-top: 4px;
-    margin-bottom: 4px;
-    margin-left: 4px;
-    margin-right: 4px;
-	margin-top: 0;
-	cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  background-color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  padding-bottom: 4px;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 4px;
+  margin-bottom: 4px;
+  margin-left: 4px;
+  margin-right: 4px;
+  margin-top: 0;
+  cursor: pointer;
 }
 .tagger-pressure {
-    flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+.tags-window {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  border: 1px solid gray;
+  margin: 3px;
+  padding: 1px;
 }
 .tag-highlight {
-    background-color: #3c5a79;
+  background-color: #3c5a79;
 }
 
 @media (min-width: 400px) {
-    .tagger-editor-header {
-        position: absolute;
-        left: 30px;
-    }
-    .tagger-editor-close {
-	    border: 1px solid gray;
-	    box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
+  .tagger-editor-header {
+    position: absolute;
+    left: 30px;
+  }
+  .tagger-editor-close {
+    border: 1px solid gray;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  }
 }
 @media (max-width: 400px) {
-    .tags li.tag {
-        font-weight: 600;
-    }
+  .tags li.tag {
+    font-weight: 600;
+  }
 }
 .tagger-controls-wrap {
-	position: relative;
+  position: relative;
 }
 .tagger-controls {
-	display: flex;
-	width: 100%;
-	position: absolute;
-	top: -25px;
+  display: flex;
+  width: 100%;
+  position: absolute;
+  top: -25px;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 .tagger-controls-checkbox-wrap {
 }
-.tagger-controls-checkbox {
-}
+.tagger-controls-checkbox {transform: scale(1.5);margin-top: 5px;}
 .tagger-controls-spacer {
-	flex: 1 1 auto;
+  flex: 1 1 auto;
 }
 .tagger-controls-button-wrap {
 }
 .tagger-controls-button {
-                    margin-right: 5px;
-                    background-color: rgba(117,117,117,0.5);
-                    border-width: 1px;
-                    color: white;
+  background-color: rgba(117,117,117,0.5);
+  border-width: 1px;
+  color: white;
+  height: 20px;
+}
+.tagger-controls-icon {
+  width: 16px;
+  height: 16px;
 }

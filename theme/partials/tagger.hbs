@@ -5,12 +5,14 @@
                 <div class="tagger-editor-close"><div>&#x2715;</div></div>
             </div>
         </div>
-        <div class="tagger-pressure"></div>
-		<ul class="tags" data-filename="{{ filename }}" data-filepath="{{ path }}">
-		</ul>
-		<div class="tag-input-wrap">
-			<input type="text" class="tag-input-text">
-			<input type="submit" class="tag-input-add" value="+">
-		</div>
+	<div class="tags-window">
+		<div class="tagger-pressure"></div>
+		<ul class="tags" data-filename="{{ filename }}" data-filepath="{{ path }}"></ul>
+	</div>
+	<div class="tag-input-wrap">
+		<input type="text" class="tag-input-text">
+		<div class="tag-input-spacer"></div>
+		<button type="submit" class="tag-input-add"><img class="tag-input-add-icon" src="{{relative 'public/plus.svg'}}"></button>
+	</div>
 	</div>
 </div>

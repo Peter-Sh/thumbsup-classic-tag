@@ -209,13 +209,14 @@ $(function(){
           }
       })
       this.$closeButton.on('click',  e => {
-          this.close();
+          this.close()
+          e.stopPropagation()
       })
       this.$overlay.on('click',  e => {
           if (e.target === e.currentTarget) {
             this.close();
           }
-          e.preventDefault();
+          //e.preventDefault();
           e.stopPropagation();
       })
 
@@ -323,7 +324,7 @@ $(function(){
     toggleTagger(e)
   });
 	$(".tagger-controls").on('click', function (e) {
-		e.preventDefault();
+		//e.preventDefault();
 		e.stopPropagation();
 	});
 });
