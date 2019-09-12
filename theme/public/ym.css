@@ -1,20 +1,45 @@
 /* vim: set et ts=2 sw=2:  */
 .tagger-cont {
-  display: flex;
-  justify-content: center;
+display: flex;
+justify-content: center;
 }
 .tagger-overlay {
-  visibility: hidden;
-  z-index: 1000;
-  top: 0;
-  left: 0;
-  right: 1vw;
-  bottom: 1vh;
-  border: 0;
-  position: fixed;
+visibility: hidden;
+z-index: 1000;
+top: 0;
+left: 0;
+right: 1vw;
+bottom: 1vh;
+border: 0;
+position: fixed;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+.tagger-tabs {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+}
+.tagger-tabs-pressure {
+  flex: 1 1 auto;
+}
+.tagger-tabs-icon {
+  width: 24px;
+  height: 24px;
+  /* border: 1px solid black; */
+  position: relative;
+  /* left: 1px; */
+}
+.tagger-tab {border: 1px solid gray;margin-top: 10px;border-width: 1px 0 1px 1px;margin-left: 5px;padding: 4px;vertical-align: middle;justify-content: center;display: flex;position: relative;left: 1px;cursor: pointer;}
+.tagger-tab-inactive {
+}
+.tagger-tab-active {
+  border-right: 1px solid white;
+}
+.
+.tagger-editor-wrapper {
+  display: flex;
+  flex-direction: column;
 }
 .tag-editor {
   width: 100%;
@@ -127,14 +152,19 @@ span.tagRemove:hover {
 .tagger-pressure {
   flex: 1 1 auto;
 }
+.tags-window-wrapper {
+  display: flex;
+  flex-direction: row;
+  flex: 1 1 auto;
+}
 .tags-window {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
   border: 1px solid gray;
-  margin: 3px;
-  padding: 1px;
+  /* margin: 3px; */
+  /* padding: 1px; */
 }
 .tag-highlight {
   background-color: #3c5a79;
