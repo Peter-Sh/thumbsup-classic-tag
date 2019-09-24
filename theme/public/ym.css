@@ -34,7 +34,7 @@ align-items: center;
 .tagger-tab-inactive {
 }
 .tagger-tab-active {
-  border-right: 1px solid white;
+  border-right: 2px solid white;
 }
 .
 .tagger-editor-wrapper {

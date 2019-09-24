@@ -82,12 +82,14 @@ $(function(){
         $tags: { value: props.$tags },
         $closeButton: { value: props.$overlay.find('.tagger-editor-close') },
         $addButton: { value: props.$overlay.find('.tag-input-add') },
+        $tabs: { value: props.$overlay.find('.tagger-tab') },
         renderEnqueued: { value: false, writable: true },
         updateSearchTagsTimeoutId: { value: false, writable: true },
         lastInputValue: { value: "", writable: true},
         lastCreatedTag: { value: null, writable: true },
         lastChangedTag: { value: null, writable: true },
         search: { value: TagSearch.create() },
+        mode: { value: "recent", writable: true },
       })
       editor.initProps()
       return editor
@@ -95,6 +97,7 @@ $(function(){
     initProps() {
       this.activeTags = TagsCollection.create((op, val) => this.enqueueRender(op, val))
       this.searchTags = TagsCollection.create(() => this.enqueueRender())
+      this.recentTags = TagsCollection.create(() => {})
     },
     newTag(value) {
       if (this.activeTags.hasTag(value)) {
@@ -171,6 +174,23 @@ $(function(){
         this.insertTags(tags.data)
       }
       this.loadAllTags()
+      this.updateRecentTags()
+    },
+    async updateRecentTags() {
+      let tagsResult = (await this.allTagsCache).slice()
+      tagsResult.sort((date1, date2) => {
+        if (date1 > date2) {
+          return 1;
+        }
+        if (date1 < date2) {
+          return -1;
+        }
+
+        return 0
+      })
+      tagsResult.slice(0, 20).map((tagData) => {
+        this.recentTags.addTag(tagData.name)
+      })
     },
     async updateSearchTags(term) {
       let tagsResult = await this.allTagsCache
@@ -181,6 +201,14 @@ $(function(){
         }
       })
       console.log(this.searchTags.getTags())
+    },
+    setMode(mode) {
+      if (!(['tags', 'recent', 'search'].indexOf(mode) > -1)) {
+        // TODO error
+        return false;
+      }
+      this.mode = mode
+      this.enqueueRender()
     },
     enqueueUpdateSearchTags() {
       let val = this.$input.val()
@@ -247,6 +275,9 @@ $(function(){
         this.newTag(this.$input.val());
         this.$input.val('')
       })
+      this.$tabs.on('click', event => {
+        this.setMode($(event.currentTarget).data('mode'))
+      })
     },
     close() {
       this.$overlay.css('visibility', 'hidden');
@@ -265,7 +296,18 @@ $(function(){
       this.$addButton.off('click')
       $(document).off('closeTagEditor')
     },
+    renderTabs() {
+      this.$tabs.removeClass('tagger-tab-active')
+      let activeClass = 'tagger-tab-' + this.mode;
+      this.$tabs.find('.' + activeClass).addClass('tagger-tab-active')
+      this.$tabs.each((i, tab) => {
+          if ($(tab).hasClass(activeClass)) {
+            $(tab).addClass('tagger-tab-active')
+          }
+      })
+    },
     render() {
+      this.renderTabs()
       if (this.lastChangedTag) {
         let changedTag = this.$tags.find('[id="' + this.lastChangedTag + '"]')
         if (this.activeTags.hasTag(this.lastChangedTag)) {
