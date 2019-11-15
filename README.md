@@ -1,33 +1,32 @@
-# @thumbsup/theme-classic
+# @thumbsup/theme-classic with tagging support
 
-[![NPM](https://img.shields.io/npm/v/@thumbsup/theme-classic.svg?style=flat)](https://www.npmjs.com/package/@thumbsup/theme-classic)
-[![Travis CI](https://travis-ci.org/thumbsup/theme-classic.svg?branch=master)](https://travis-ci.org/thumbsup/theme-classic)
+Theme for thumbsup with tagging support based on theme-classic.
 
-One of the built-in themes for https://github.com/thumbsup/thumbsup.
+*Note:* this project is in early development stage.
 
 ---
 
 ## Usage
 
-```bash
-thumbsup --theme classic
+* Install [thumbsup](https://thumbsup.github.io/)
+* Clone [thumsup-tagger-server](https://github.com/Peter-Sh/thumbsup-tagger-server)
+* Clone this repo
+* Start server
+
+Prepare a config file config.js.
+For example:
+
+```
+{
+	"input": "/path/to/dir/with/photos",
+	"output": "/path/to/output/album",
+	"albums-from": ["Yearly/{YYYY}", "%path", "file://../path/to/thumbsup-tagger-server/tag.js"],
+	"theme-path": "/path/to/thumbsup-classic-tag"
+}
 ```
 
-## Screenshots
-
-![albums](docs/albums.png)
-![media](docs/media.png)
-
-## Developing
-
-Testing the theme
-
+Run album generation
 ```bash
-thumbsup --input /photos --output ./tmp --theme-path ./theme
+./node_modules/thumbsup/bin/thumbsup.js --config test.json
 ```
 
-Publishing the theme:
-
-```bash
-npm publish
-```
