@@ -178,7 +178,9 @@ $(function(){
     },
     async updateRecentTags() {
       let tagsResult = (await this.allTagsCache).slice()
-      tagsResult.sort((date1, date2) => {
+      tagsResult.sort((tag1, tag2) => {
+        let date1 = tag1.last_used
+        let date2 = tag2.last_used
         if (date1 > date2) {
           return 1;
         }
@@ -215,6 +217,7 @@ $(function(){
       if (val == this.lastInputValue) {
         return
       } else {
+        this.setMode('search')
         this.lastInputValue = val
       }
       if (this.updateSearchTagsTimeoutId) {
@@ -225,9 +228,6 @@ $(function(){
         this.updateSearchTags(val)
         this.updateSearchTagsTimeoutId = false
       }, 200)
-    },
-    searchIsActive() {
-      return this.$input.val().length != 0
     },
     open() {
       this.$overlay.css('visibility', 'visible');
@@ -322,7 +322,12 @@ $(function(){
         this.lastChangedTag = null
         return
       }
-      let tags = this.searchIsActive() ? this.searchTags : this.activeTags
+      let tags = this.recentTags;
+      if (this.mode == 'search') {
+        tags = this.searchTags
+      } else if (this.mode == 'tags') {
+        tags = this.activeTags
+      }
       let root = $('<span></span>');
       tags.getTags().map((tag) => {
         let active = this.activeTags.hasTag(tag)
